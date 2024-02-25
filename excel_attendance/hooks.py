@@ -129,23 +129,11 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-#	"all": [
-#		"excel_attendance.tasks.all"
-#	],
-#	"daily": [
-#		"excel_attendance.tasks.daily"
-#	],
-#	"hourly": [
-#		"excel_attendance.tasks.hourly"
-#	],
-#	"weekly": [
-#		"excel_attendance.tasks.weekly"
-#	],
-#	"monthly": [
-#		"excel_attendance.tasks.monthly"
-#	],
-# }
+scheduler_events = {
+	"all": [
+		"excel_attendance.checkin.set_check_in"
+	],
+}
 
 # Testing
 # -------

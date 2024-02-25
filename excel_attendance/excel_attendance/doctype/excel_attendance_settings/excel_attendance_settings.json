@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-19 11:42:43.701146",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "server",
+  "database",
+  "username",
+  "password"
+ ],
+ "fields": [
+  {
+   "fieldname": "server",
+   "fieldtype": "Data",
+   "label": "Server"
+  },
+  {
+   "fieldname": "database",
+   "fieldtype": "Data",
+   "label": "Database"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Data",
+   "label": "Password"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-02-19 13:09:37.240483",
+ "modified_by": "Administrator",
+ "module": "Excel Attendance",
+ "name": "Excel Attendance Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
