@@ -24,7 +24,7 @@ class ExcelEmployeeAttendance(Document):
 		username=settings.username
 		password=settings.password
 		conn = pymssql.connect(server, username, password, database)
-
+		print(settings)
 		cursor = conn.cursor()
 		cursor.execute('SELECT * FROM TabEmployeeAttendance')
 		columns = [column[0] for column in cursor.description]

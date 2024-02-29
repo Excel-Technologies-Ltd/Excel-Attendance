@@ -10,7 +10,8 @@
   "server",
   "database",
   "username",
-  "password"
+  "password",
+  "attendance_sync_time"
  ],
  "fields": [
   {
@@ -32,12 +33,17 @@
    "fieldname": "password",
    "fieldtype": "Data",
    "label": "Password"
+  },
+  {
+   "fieldname": "attendance_sync_time",
+   "fieldtype": "Time",
+   "label": "Attendance Sync Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-02-19 13:09:37.240483",
+ "modified": "2024-02-27 15:59:35.728420",
  "modified_by": "Administrator",
  "module": "Excel Attendance",
  "name": "Excel Attendance Settings",

@@ -133,6 +133,12 @@ scheduler_events = {
 	"all": [
 		"excel_attendance.checkin.set_check_in"
 	],
+	"cron":{
+		"0 7 * * *": [
+			"excel_attendance.checkin.attendance_sync"
+		]
+	
+	}
 }
 
 # Testing

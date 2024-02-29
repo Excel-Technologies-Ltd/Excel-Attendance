@@ -1,5 +1,6 @@
 import frappe
 import pymssql
+import datetime
 
 def get_name():
     print("Hello World")
@@ -19,12 +20,12 @@ def set_check_in():
 
     for row in rows:
         row_dict = dict(zip(columns, row))
-        employee_name = frappe.db.get_value('Employee', row_dict['EmployeeID'], 'employee_name')
+        employee_name,employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
         print(employee_name)
         
         doc = frappe.get_doc({
             'doctype': "Employee Checkin",
-            'employee': row_dict['EmployeeID'],
+            'employee': employee_number,
             'employee_name': employee_name,
             'log_type': row_dict['Direction'],
             'time': row_dict['AuthenticationDateAndTime'],
@@ -52,3 +53,34 @@ def delete_synced_records():
 
 	cursor.execute("DELETE FROM TabEmployeeAttendance WHERE sync = 1")
 	conn.commit()
+
+
+def attendance_sync():
+    settings = frappe.get_doc("Excel Attendance Settings")
+    shift_lists = frappe.db.get_list('Shift Type')
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    target_time = settings.attendance_sync_time if settings.attendance_sync_time else "23:30:00"
+
+    # Combine date and time to form the target datetime
+    target_datetime_str = f"{current_date} {target_time}"
+    target_datetime = datetime.datetime.strptime(target_datetime_str, "%Y-%m-%d %H:%M:%S")
+
+    for shift in shift_lists:
+        frappe.db.set_value('Shift Type', shift.name, 'last_sync_of_checkin', target_datetime)
+
+        
+   
+   
+def set_device_id():
+    employees = frappe.db.get_list('Employee', filters={'status': 'Active'}, fields=['name'])
+    for employee in employees:
+       id=extract_number_from_id(employee.name)
+       frappe.db.set_value('Employee', employee.name, 'attandance_device_id', id)
+
+   
+def extract_number_from_id(identifier):
+    if identifier.startswith('ETL') or identifier.startswith('EISL'):
+        number = ''.join(filter(str.isdigit, identifier))
+        return number
+    else:
+        return identifier    

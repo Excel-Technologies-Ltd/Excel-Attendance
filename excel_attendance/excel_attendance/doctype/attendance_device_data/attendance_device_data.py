@@ -4,6 +4,7 @@ import pika
 
 
 class AttendanceDeviceData(Document):
+    
     pass
     # server = '192.168.30.200'
     # database = 'hikvisiondb'
