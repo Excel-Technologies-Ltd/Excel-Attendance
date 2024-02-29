@@ -209,3 +209,13 @@ scheduler_events = {
 # auth_hooks = [
 #	"excel_attendance.auth.validate"
 # ]
+fixtures = [
+    
+    {"dt": "Custom Field", "filters": [
+        [
+            "name", "in", [
+                "Employee-attandance_device_id"
+            ]
+        ]
+    ]}
+]
