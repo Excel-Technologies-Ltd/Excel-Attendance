@@ -11,17 +11,19 @@ def set_check_in():
     database = settings.database
     username = settings.username
     password = settings.password
+    print(settings)
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM TabEmployeeAttendance WHERE sync = 0')
+    cursor.execute('SELECT * FROM TabEmployeeAttendance')
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
+    print(cursor)
 
     for row in rows:
+        print(row)
         row_dict = dict(zip(columns, row))
         employee_name,employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
-        print(employee_name)
         
         doc = frappe.get_doc({
             'doctype': "Employee Checkin",
