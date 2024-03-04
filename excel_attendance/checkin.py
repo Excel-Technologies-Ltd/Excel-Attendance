@@ -24,7 +24,7 @@ def set_check_in():
         print(row)
         row_dict = dict(zip(columns, row))
         employee_name,employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
-        
+        # employee_name,employee_number = frappe.db.get_value('Employee', {"employee_number":row_dict['EmployeeID']}, ['employee_name','employee_number'])
         doc = frappe.get_doc({
             'doctype': "Employee Checkin",
             'employee': employee_number,
