@@ -72,13 +72,11 @@ class CustomShiftType(Document):
 
 		# mark absent in batches & commit to avoid losing progress since this tries to process remaining attendance
 		# right from "Process Attendance After" to "Last Sync of Checkin"
-#   start make by sohan
 		# for batch in create_batch(assigned_employees, EMPLOYEE_CHUNK_SIZE):
 		# 	for employee in batch:
 		# 		self.mark_absent_for_dates_with_no_attendance(employee)
 
 		# 	frappe.db.commit()  # nosemgrep
-#    end by sohan
 
 	def get_employee_checkins(self) -> list[dict]:
 		return frappe.get_all(
@@ -117,14 +115,14 @@ class CustomShiftType(Document):
 			logs, self.determine_check_in_and_check_out, self.working_hours_calculation_based_on
 		)
 		if (
-			cint(self.enable_entry_grace_period)
+			cint(self.enable_late_entry_marking)
 			and in_time
 			and in_time > logs[0].shift_start + timedelta(minutes=cint(self.late_entry_grace_period))
 		):
 			late_entry = True
 
 		if (
-			cint(self.enable_exit_grace_period)
+			cint(self.enable_early_exit_marking)
 			and out_time
 			and out_time < logs[0].shift_end - timedelta(minutes=cint(self.early_exit_grace_period))
 		):
