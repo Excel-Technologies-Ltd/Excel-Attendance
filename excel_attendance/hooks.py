@@ -214,7 +214,13 @@ fixtures = [
     {"dt": "Custom Field", "filters": [
         [
             "name", "in", [
-                "Employee-attandance_device_id"
+                "Employee-attandance_device_id",
+                "Employee Checkin-longitude",
+                "Employee Checkin-latitude",
+                "Employee Checkin-address",
+                "Employee Checkin-project",
+                "Employee Checkin-location",
+                "Employee Checkin-image",
             ]
         ]
     ]}

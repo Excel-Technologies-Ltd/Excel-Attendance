@@ -11,7 +11,8 @@
   "database",
   "username",
   "password",
-  "attendance_sync_time"
+  "attendance_sync_time",
+  "check_out_time"
  ],
  "fields": [
   {
@@ -38,12 +39,18 @@
    "fieldname": "attendance_sync_time",
    "fieldtype": "Time",
    "label": "Attendance Sync Time"
+  },
+  {
+   "default": "14:00:00",
+   "fieldname": "check_out_time",
+   "fieldtype": "Time",
+   "label": "Check Out Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-02-27 15:59:35.728420",
+ "modified": "2024-03-12 14:32:54.095528",
  "modified_by": "Administrator",
  "module": "Excel Attendance",
  "name": "Excel Attendance Settings",

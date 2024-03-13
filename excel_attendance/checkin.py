@@ -11,34 +11,51 @@ def set_check_in():
     database = settings.database
     username = settings.username
     password = settings.password
-    print(settings)
+    check_out_time = settings.check_out_time
+    if not check_out_time:
+        check_out_time = "15:00:00"
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM TabEmployeeAttendance')
+   
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
-    print(cursor)
-
+    check_out_time = datetime.datetime.strptime(check_out_time, "%H:%M:%S").time()
     for row in rows:
-        print(row)
         row_dict = dict(zip(columns, row))
-        employee_name,employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
-        # employee_name,employee_number = frappe.db.get_value('Employee', {"employee_number":row_dict['EmployeeID']}, ['employee_name','employee_number'])
-        doc = frappe.get_doc({
-            'doctype': "Employee Checkin",
-            'employee': employee_number,
-            'employee_name': employee_name,
-            'log_type': row_dict['Direction'],
-            'time': row_dict['AuthenticationDateAndTime'],
-            'device_id': row_dict['DeviceName'],
-        }).insert()
-       
-
-        cursor.execute(
-            "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-            (row_dict['EmployeeID'], row_dict['AuthenticationDateAndTime'])
-        )
+        test=frappe.db.exists("Employee", {"attandance_device_id": row_dict['EmployeeID']})
+        if not test:
+            print('come')
+            cursor.execute(
+                "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                (row_dict['EmployeeID'], row_dict['AuthenticationDateAndTime'])
+            )
+        else:
+            employee_name, employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
+            authentication_time = row_dict['AuthenticationTime']
+            if authentication_time >= check_out_time:
+                log_type = 'OUT'
+            else:
+                log_type = 'IN'
+            print(log_type)
+            try:
+                doc = frappe.get_doc({
+                    'doctype': "Employee Checkin",
+                    'employee': employee_number,
+                    'employee_name': employee_name,
+                    'log_type': log_type,
+                    'time': row_dict['AuthenticationDateAndTime'],
+                    'device_id': row_dict['DeviceName'],
+                }).insert()
+                print(doc)
+                if doc:
+                    cursor.execute(
+                        "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                        (row_dict['EmployeeID'], row_dict['AuthenticationDateAndTime'])
+                    )
+            except Exception as e:
+                print("Error inserting Employee Checkin document:", e)
         conn.commit()
 
     
@@ -53,7 +70,7 @@ def delete_synced_records():
 	conn = pymssql.connect(server, username, password, database)
 	cursor = conn.cursor()
 
-	cursor.execute("DELETE FROM TabEmployeeAttendance WHERE sync = 1")
+	cursor.execute("DELETE FROM TabEmployeeAttendance")
 	conn.commit()
 
 
