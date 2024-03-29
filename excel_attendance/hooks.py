@@ -134,7 +134,7 @@ scheduler_events = {
 		"excel_attendance.checkin.set_check_in"
 	],
 	"cron":{
-		"0 7 * * *": [
+		"0 8 * * *": [
 			"excel_attendance.checkin.attendance_sync"
 		]
 	
@@ -214,13 +214,16 @@ fixtures = [
     {"dt": "Custom Field", "filters": [
         [
             "name", "in", [
-                "Employee-attandance_device_id",
                 "Employee Checkin-longitude",
                 "Employee Checkin-latitude",
                 "Employee Checkin-address",
                 "Employee Checkin-project",
                 "Employee Checkin-location",
-                "Employee Checkin-image",
+                "Employee Checkin-date",
+                "Employee Checkin-attach_image",
+                "Employee Checkin-section_break_c4p01",
+                "Employee Checkin-column_break_rlf7h",
+                "Employee Checkin-section_break_gwzsw",
             ]
         ]
     ]}

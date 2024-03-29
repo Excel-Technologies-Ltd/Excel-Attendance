@@ -3,7 +3,14 @@ import pymssql
 import datetime
 
 def get_name():
-    print("Hello World")
+    doc = frappe.get_doc({
+                        'doctype': "Employee Checkin",
+                        'employee': "ETL20050261",
+                        'employee_name':"sohan" ,
+                        'log_type': 'IN',
+                        'time': "2024-03-28 08:30:00",
+                        'device_id': 'device1',
+                }).insert()
 
 def set_check_in():
     settings = frappe.get_doc("Excel Attendance Settings")
@@ -24,35 +31,42 @@ def set_check_in():
     check_out_time = datetime.datetime.strptime(check_out_time, "%H:%M:%S").time()
     for row in rows:
         row_dict = dict(zip(columns, row))
-        test=frappe.db.exists("Employee", {"attandance_device_id": row_dict['EmployeeID']})
+        test=frappe.db.exists("Employee", {"employee_number": row_dict['employeeID']})
         if not test:
             print('come')
             cursor.execute(
-                "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                (row_dict['EmployeeID'], row_dict['AuthenticationDateAndTime'])
+                "DELETE TabEmployeeAttendance  WHERE employeeID = %s AND datetime = %s",
+                (row_dict['employeeID'], row_dict['datetime'])
             )
         else:
-            employee_name, employee_number = frappe.db.get_value('Employee', {"attandance_device_id":row_dict['EmployeeID']}, ['employee_name','employee_number'])
-            authentication_time = row_dict['AuthenticationTime']
-            if authentication_time >= check_out_time:
+            employee_name, employee_number = frappe.db.get_value('Employee', {"employee_number":row_dict['employeeID']}, ['employee_name','employee_number'])
+            date = row_dict.get('date')
+            test_check_in = frappe.db.exists('Employee Checkin', {'date':date , 'employee': employee_number})
+            print(test_check_in)
+            if test_check_in:
                 log_type = 'OUT'
             else:
                 log_type = 'IN'
-            print(log_type)
+            print(log_type)   
+            print(employee_name, employee_number)
+            
             try:
+                time_str = row_dict.get('datetime')
+                time_obj = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
                 doc = frappe.get_doc({
                     'doctype': "Employee Checkin",
                     'employee': employee_number,
                     'employee_name': employee_name,
                     'log_type': log_type,
-                    'time': row_dict['AuthenticationDateAndTime'],
-                    'device_id': row_dict['DeviceName'],
+                    'time': time_obj,
+                    'date':row_dict.get('date'),
+                    'device_id': row_dict.get('devicename'),
                 }).insert()
                 print(doc)
                 if doc:
                     cursor.execute(
-                        "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                        (row_dict['EmployeeID'], row_dict['AuthenticationDateAndTime'])
+                        "DELETE TabEmployeeAttendance  WHERE employeeID = %s AND datetime = %s",
+                        (row_dict['employeeID'], row_dict['datetime'])
                     )
             except Exception as e:
                 print("Error inserting Employee Checkin document:", e)
@@ -102,4 +116,6 @@ def extract_number_from_id(identifier):
         number = ''.join(filter(str.isdigit, identifier))
         return number
     else:
-        return identifier    
+        return identifier   
+    
+     
