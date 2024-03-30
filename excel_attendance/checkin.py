@@ -28,7 +28,6 @@ def set_check_in():
    
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
-    check_out_time = datetime.datetime.strptime(check_out_time, "%H:%M:%S").time()
     for row in rows:
         row_dict = dict(zip(columns, row))
         test=frappe.db.exists("Employee", {"employee_number": row_dict['employeeID']})
@@ -49,16 +48,14 @@ def set_check_in():
                 log_type = 'IN'
             print(log_type)   
             print(employee_name, employee_number)
-            
+            print(f"{date} {row_dict.get('time')}")
             try:
-                time_str = row_dict.get('datetime')
-                time_obj = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
                 doc = frappe.get_doc({
                     'doctype': "Employee Checkin",
                     'employee': employee_number,
                     'employee_name': employee_name,
                     'log_type': log_type,
-                    'time': time_obj,
+                    'time': f"{date} {row_dict.get('time')}",
                     'date':row_dict.get('date'),
                     'device_id': row_dict.get('devicename'),
                 }).insert()
