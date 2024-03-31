@@ -18,14 +18,9 @@ def set_check_in():
     database = settings.database
     username = settings.username
     password = settings.password
-    check_out_time = settings.check_out_time
-    if not check_out_time:
-        check_out_time = "15:00:00"
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
-
     cursor.execute('SELECT * FROM TabEmployeeAttendance')
-   
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
     for row in rows:
