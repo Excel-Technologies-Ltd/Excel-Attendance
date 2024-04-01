@@ -3,7 +3,9 @@ from . import __version__ as app_version
 app_name = "excel_attendance"
 app_title = "Excel Attendance"
 app_publisher = "Shaid Azmin"
-app_description = "A ERPNext Based Hikvision Device Integrated Attendane Management Apps"
+app_description = (
+    "A ERPNext Based Hikvision Device Integrated Attendane Management Apps"
+)
 app_email = "azmin@excelbd.com"
 app_license = "MIT"
 
@@ -31,6 +33,7 @@ app_license = "MIT"
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"Employee": "public/js/employee_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -42,7 +45,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# "Role": "home_page"
 # }
 
 # Generators
@@ -56,8 +59,8 @@ app_license = "MIT"
 
 # add methods and filters to jinja environment
 # jinja = {
-#	"methods": "excel_attendance.utils.jinja_methods",
-#	"filters": "excel_attendance.utils.jinja_filters"
+# "methods": "excel_attendance.utils.jinja_methods",
+# "filters": "excel_attendance.utils.jinja_filters"
 # }
 
 # Installation
@@ -99,46 +102,37 @@ app_license = "MIT"
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-#	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-#	"Event": "frappe.desk.doctype.event.event.has_permission",
+# "Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
 # ---------------
 # Override standard doctype classes
 
-override_doctype_class = {
-	"Shift Type": "excel_attendance.override.CustomShiftType"
-}
+override_doctype_class = {"Shift Type": "excel_attendance.override.CustomShiftType"}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
 # doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
+# "*": {
+# "on_update": "method",
+# "on_cancel": "method",
+# "on_trash": "method"
+# }
 # }
 
 # Scheduled Tasks
 # ---------------
 
 scheduler_events = {
-	"all": [
-		"excel_attendance.checkin.set_check_in"
-	],
-	"cron":{
-		"0 8 * * *": [
-			"excel_attendance.checkin.attendance_sync"
-		]
-	
-	}
+    "all": ["excel_attendance.checkin.set_check_in"],
+    "cron": {"0 8 * * *": ["excel_attendance.checkin.attendance_sync"]},
 }
 
 # Testing
@@ -150,14 +144,14 @@ scheduler_events = {
 # ------------------------------
 #
 # override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "excel_attendance.event.get_events"
+# "frappe.desk.doctype.event.event.get_events": "excel_attendance.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-#	"Task": "excel_attendance.task.get_dashboard_data"
+# "Task": "excel_attendance.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -183,48 +177,53 @@ scheduler_events = {
 # --------------------
 
 # user_data_fields = [
-#	{
-#		"doctype": "{doctype_1}",
-#		"filter_by": "{filter_by}",
-#		"redact_fields": ["{field_1}", "{field_2}"],
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_2}",
-#		"filter_by": "{filter_by}",
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_3}",
-#		"strict": False,
-#	},
-#	{
-#		"doctype": "{doctype_4}"
-#	}
+# {
+# "doctype": "{doctype_1}",
+# "filter_by": "{filter_by}",
+# "redact_fields": ["{field_1}", "{field_2}"],
+# "partial": 1,
+# },
+# {
+# "doctype": "{doctype_2}",
+# "filter_by": "{filter_by}",
+# "partial": 1,
+# },
+# {
+# "doctype": "{doctype_3}",
+# "strict": False,
+# },
+# {
+# "doctype": "{doctype_4}"
+# }
 # ]
 
 # Authentication and authorization
 # --------------------------------
 
 # auth_hooks = [
-#	"excel_attendance.auth.validate"
+# "excel_attendance.auth.validate"
 # ]
 fixtures = [
-    
-    {"dt": "Custom Field", "filters": [
-        [
-            "name", "in", [
-                "Employee Checkin-longitude",
-                "Employee Checkin-latitude",
-                "Employee Checkin-address",
-                "Employee Checkin-project",
-                "Employee Checkin-location",
-                "Employee Checkin-date",
-                "Employee Checkin-attach_image",
-                "Employee Checkin-section_break_c4p01",
-                "Employee Checkin-column_break_rlf7h",
-                "Employee Checkin-section_break_gwzsw",
+    {
+        "dt": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Employee Checkin-longitude",
+                    "Employee Checkin-latitude",
+                    "Employee Checkin-address",
+                    "Employee Checkin-project",
+                    "Employee Checkin-location",
+                    "Employee Checkin-date",
+                    "Employee Checkin-attach_image",
+                    "Employee Checkin-section_break_c4p01",
+                    "Employee Checkin-column_break_rlf7h",
+                    "Employee Checkin-section_break_gwzsw",
+                    "Employee-attandance_device_id",
+                ],
             ]
-        ]
-    ]}
+        ],
+    }
 ]
