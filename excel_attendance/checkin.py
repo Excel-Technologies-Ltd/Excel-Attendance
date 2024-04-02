@@ -29,22 +29,10 @@ def set_check_in():
     rows = cursor.fetchall()
     for row in rows:
         row_dict = dict(zip(columns, row))
-
-        sql_query = """
-            SELECT name 
-            FROM `tabEmployee` 
-            WHERE employee_number = %(employee)s 
-                OR attandance_device_id = %(employee)s
-        """
-
-        employee_exists = frappe.db.sql(
-            sql_query, {"employee": row_dict["employeeID"]}, as_dict=True
+        test = frappe.db.exists(
+            "Employee", {"attandance_device_id": row_dict["employeeID"]}
         )
-
-        print(employee_exists[0].name)
-
-        if len(employee_exists) == 0 or len(employee_exists) < 0:
-            print("come")
+        if not test:
             cursor.execute(
                 "DELETE TabEmployeeAttendance  WHERE employeeID = %s AND datetime = %s",
                 (row_dict["employeeID"], row_dict["datetime"]),
@@ -52,7 +40,7 @@ def set_check_in():
         else:
             employee_name, employee_number = frappe.db.get_value(
                 "Employee",
-                {"employee_number": employee_exists[0].name},
+                {"attandance_device_id": row_dict["employeeID"]},
                 ["employee_name", "employee_number"],
             )
             date = row_dict.get("date")
@@ -128,16 +116,9 @@ def set_device_id():
     employees = frappe.db.get_list(
         "Employee", filters={"status": "Active"}, fields=["name"]
     )
-    total_employees = len(employees)
-    processed_employees = 0
     for employee in employees:
         id = extract_number_from_id(employee.name)
         frappe.db.set_value("Employee", employee.name, "attandance_device_id", id)
-        processed_employees += 1
-        progress_percentage = (processed_employees / total_employees) * 100
-        frappe.publish_progress(
-            float(progress_percentage), "Setting device ID for employees"
-        )
 
 
 def extract_number_from_id(identifier):
