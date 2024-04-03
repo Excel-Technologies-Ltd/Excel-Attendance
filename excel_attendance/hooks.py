@@ -132,7 +132,7 @@ override_doctype_class = {"Shift Type": "excel_attendance.override.CustomShiftTy
 
 scheduler_events = {
     "all": ["excel_attendance.checkin.set_check_in"],
-    "cron": {"0 8 * * *": ["excel_attendance.checkin.attendance_sync"]},
+    "cron": {"0 23 * * *": ["excel_attendance.checkin.attendance_sync"]},
 }
 
 # Testing

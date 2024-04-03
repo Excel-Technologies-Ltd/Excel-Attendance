@@ -1,6 +1,7 @@
 import frappe
 import pymssql
 import datetime
+from frappe.utils import get_datetime
 
 
 def get_name():
@@ -94,7 +95,8 @@ def delete_synced_records():
 def attendance_sync():
     settings = frappe.get_doc("Excel Attendance Settings")
     shift_lists = frappe.db.get_list("Shift Type")
-    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    current_datetime = get_datetime()
+    current_date = current_datetime.strftime("%Y-%m-%d")
     target_time = (
         settings.attendance_sync_time if settings.attendance_sync_time else "23:30:00"
     )
