@@ -31,20 +31,20 @@ def set_check_in():
     for row in rows:
         row_dict = dict(zip(columns, row))
         test = frappe.db.exists(
-            "Employee", {"attandance_device_id": row_dict["employeeID"]}
+            "Employee", {"attandance_device_id": row_dict["EmployeeID"]}
         )
         if not test:
             cursor.execute(
-                "DELETE TabEmployeeAttendance  WHERE employeeID = %s AND datetime = %s",
-                (row_dict["employeeID"], row_dict["datetime"]),
+                "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
             )
         else:
             employee_name, employee_number = frappe.db.get_value(
                 "Employee",
-                {"attandance_device_id": row_dict["employeeID"]},
+                {"attandance_device_id": row_dict["EmployeeID"]},
                 ["employee_name", "employee_number"],
             )
-            date = row_dict.get("date")
+            date = row_dict.get("AuthenticationDate")
             test_check_in = frappe.db.exists(
                 "Employee Checkin", {"date": date, "employee": employee_number}
             )
@@ -53,9 +53,6 @@ def set_check_in():
                 log_type = "OUT"
             else:
                 log_type = "IN"
-            print(log_type)
-            print(employee_name, employee_number)
-            print(f"{date} {row_dict.get('time')}")
             try:
                 doc = frappe.get_doc(
                     {
@@ -63,16 +60,16 @@ def set_check_in():
                         "employee": employee_number,
                         "employee_name": employee_name,
                         "log_type": log_type,
-                        "time": f"{date} {row_dict.get('time')}",
-                        "date": row_dict.get("date"),
-                        "device_id": row_dict.get("devicename"),
+                        "time": f"{date} {row_dict.get('AuthenticationTime')}",
+                        "date": row_dict.get("AuthenticationDate"),
+                        "device_id": row_dict.get("DeviceName"),
                     }
                 ).insert()
                 print(doc)
                 if doc:
                     cursor.execute(
-                        "DELETE TabEmployeeAttendance  WHERE employeeID = %s AND datetime = %s",
-                        (row_dict["employeeID"], row_dict["datetime"]),
+                        "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                        (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
                     )
             except Exception as e:
                 print("Error inserting Employee Checkin document:", e)
