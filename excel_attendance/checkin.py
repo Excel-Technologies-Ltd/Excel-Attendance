@@ -25,7 +25,7 @@ def set_check_in():
     password = settings.password
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM TabEmployeeAttendance")
+    cursor.execute("SELECT * FROM TabEmployeeAttendance WHERE sync=0")
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
     for row in rows:
@@ -34,10 +34,19 @@ def set_check_in():
             "Employee", {"attandance_device_id": row_dict["EmployeeID"]}
         )
         if not test:
-            cursor.execute(
-                "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
-            )
+            try:
+                frappe.get_doc({
+                    "doctype": "Employee Checkin Log",
+                    "device_id": row_dict.get("EmployeeID"),
+                    "person_name": row_dict.get("PersonName"),
+                    "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
+                    "log": "Device id not match with employee id",
+                    "date":row_dict.get("AuthenticationDate"),
+                    "time":row_dict.get("AuthenticationTime")
+                }).insert()
+            except Exception as ex:
+                print("Error inserting Employee Checkin Log document:", )
+
         else:
             employee_name, employee_number = frappe.db.get_value(
                 "Employee",
@@ -68,11 +77,23 @@ def set_check_in():
                 print(doc)
                 if doc:
                     cursor.execute(
-                        "DELETE TabEmployeeAttendance  WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                        "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
                         (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
                     )
             except Exception as e:
-                print("Error inserting Employee Checkin document:", e)
+                try:
+                    frappe.get_doc({
+                        "doctype": "Employee Checkin Log",
+                        "device_id": row_dict.get("EmployeeID"),
+                        "person_name": row_dict.get("PersonName"),
+                        "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
+                        "log": f"Error inserting Employee Checkin document: {frappe.as_json(e)}",
+                        "date":row_dict.get("AuthenticationDate"),
+                        "time":row_dict.get("AuthenticationTime")
+                    }).insert()
+                except Exception as ex:
+                    print("Error inserting Employee Checkin Log document:", ex)
+
         conn.commit()
 
 
@@ -85,7 +106,32 @@ def delete_synced_records():
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM TabEmployeeAttendance")
+    cursor.execute("DELETE FROM TabEmployeeAttendance WHERE sync = 1")
+    conn.commit()
+
+import datetime
+
+def delete_oldest_non_sync_records():
+    settings = frappe.get_doc("Excel Attendance Settings")
+    server = settings.server
+    database = settings.database
+    username = settings.username
+    password = settings.password
+    conn = pymssql.connect(server, username, password, database)
+    cursor = conn.cursor()
+
+    # Calculate the date three months ago
+    three_months_ago = datetime.datetime.now() - datetime.timedelta(days=90)
+
+    # Construct the SQL query to delete records older than three months and have sync = 1
+    delete_query = """
+    DELETE FROM TabEmployeeAttendance
+    WHERE sync = 0
+    AND AuthenticationDateAndTime <= %s
+    """
+    
+    # Execute the delete query
+    cursor.execute(delete_query, (three_months_ago,))
     conn.commit()
 
 

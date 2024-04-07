@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{person_name}--{authentication_time}",
+ "creation": "2024-04-07 10:24:45.962796",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device_id",
+  "person_name",
+  "column_break_ouety",
+  "date",
+  "time",
+  "authentication_time",
+  "column_break_yo5nj",
+  "log"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Device Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "person_name",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Person Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "authentication_time",
+   "fieldtype": "Datetime",
+   "label": "Authentication Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "log",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ouety",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yo5nj",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-04-07 11:11:25.297661",
+ "modified_by": "Administrator",
+ "module": "Excel Attendance",
+ "name": "Employee Checkin Log",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
