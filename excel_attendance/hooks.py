@@ -135,6 +135,7 @@ scheduler_events = {
     "daily": ["excel_attendance.checkin.delete_synced_records"],
     "monthly": ["excel_attendance.checkin.delete_oldest_non_sync_records"],
     "cron": {"0 23 * * *": ["excel_attendance.checkin.attendance_sync"]},
+    "cron": {"0 6 * * *": ["excel_attendance.checkin.delete_employee_checkin"]},
 }
 
 # Testing

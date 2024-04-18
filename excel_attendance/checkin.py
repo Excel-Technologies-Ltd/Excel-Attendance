@@ -155,7 +155,26 @@ def attendance_sync():
             "Shift Type", shift.name, "last_sync_of_checkin", target_datetime
         )
 
+def delete_employee_checkin():
+    try:
+        results = frappe.db.sql(
+            """
+            SELECT e.attendance, e.date, e.name
+            FROM `tabEmployee Checkin` AS e
+            WHERE e.date < DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY) AND e.attendance IS NOT NULL
+            """,
+            as_dict=True)
+        
+        for data in results:
+            try:
+                frappe.delete_doc('Employee Checkin', data.name)
+                print(f"Deleted document: {data.name}")
+            except Exception as e:
+                print(f"An error occurred while deleting {data.name}: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
+    
 @frappe.whitelist()
 def set_device_id():
     employees = frappe.db.get_list(
