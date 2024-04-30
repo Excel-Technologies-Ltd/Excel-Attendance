@@ -84,7 +84,7 @@ def set_check_in():
                     try:
                         cursor.execute(
                             "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTimess"]),
+                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
                         )
                         frappe.db.commit()
                         conn.commit()
