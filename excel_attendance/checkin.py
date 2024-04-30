@@ -46,6 +46,10 @@ def set_check_in():
                 }).insert()
             except Exception as ex:
                 print("Error inserting Employee Checkin Log document:", )
+                cursor.execute(
+                            "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
+                )
 
         else:
             employee_name, employee_number = frappe.db.get_value(
@@ -69,6 +73,7 @@ def set_check_in():
                         "employee": employee_number,
                         "employee_name": employee_name,
                         "log_type": log_type,
+                        "skip_auto_attendance":0,
                         "time": f"{date} {row_dict.get('AuthenticationTime')}",
                         "date": row_dict.get("AuthenticationDate"),
                         "device_id": row_dict.get("DeviceName"),
@@ -76,10 +81,29 @@ def set_check_in():
                 ).insert()
                 print(doc)
                 if doc:
-                    cursor.execute(
-                        "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                        (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
-                    )
+                    try:
+                        cursor.execute(
+                            "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTimess"]),
+                        )
+                        frappe.db.commit()
+                        conn.commit()
+                    except Exception as update_error:
+                        frappe.db.rollback()
+                        conn.rollback()
+                        print("Error updating TabEmployeeAttendance:", update_error)
+                        try:
+                            frappe.get_doc({
+                                "doctype": "Employee Checkin Log",
+                                "device_id": row_dict.get("EmployeeID"),
+                                "person_name": row_dict.get("PersonName"),
+                                "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
+                                "log": f"Rollback",
+                                "date":row_dict.get("AuthenticationDate"),
+                                "time":row_dict.get("AuthenticationTime")
+                            }).insert()
+                        except Exception as ex:
+                            print("Error inserting Employee Checkin Log document:", ex)
             except Exception as e:
                 try:
                     frappe.get_doc({
@@ -121,17 +145,16 @@ def delete_oldest_non_sync_records():
     cursor = conn.cursor()
 
     # Calculate the date three months ago
-    three_months_ago = datetime.datetime.now() - datetime.timedelta(days=90)
+    two_months_ago = datetime.datetime.now() - datetime.timedelta(days=60)
 
     # Construct the SQL query to delete records older than three months and have sync = 1
     delete_query = """
     DELETE FROM TabEmployeeAttendance
-    WHERE sync = 0
-    AND AuthenticationDateAndTime <= %s
+    WHERE sync=0 AND AuthenticationDateAndTime <= %s
     """
     
     # Execute the delete query
-    cursor.execute(delete_query, (three_months_ago,))
+    cursor.execute(delete_query, (two_months_ago,))
     conn.commit()
 
 
