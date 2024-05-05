@@ -164,7 +164,7 @@ def attendance_sync():
     current_datetime = get_datetime()
     current_date = current_datetime.strftime("%Y-%m-%d")
     target_time = (
-        settings.attendance_sync_time if settings.attendance_sync_time else "23:30:00"
+        settings.attendance_sync_time if settings.attendance_sync_time else "23:50:00"
     )
 
     # Combine date and time to form the target datetime
