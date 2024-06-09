@@ -15,11 +15,9 @@ def get_name():
         }
     ).insert()
 
-@frappe.whitelist()
-def set_check_in():
-    frappe.enqueue(process_check_in, queue='long')
 
-def process_check_in():
+
+def set_check_in():
     
     settings = frappe.get_doc("Excel Attendance Settings")
     server = settings.server
@@ -28,7 +26,7 @@ def process_check_in():
     password = settings.password
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM TabEmployeeAttendance WHERE sync=0")
+    cursor.execute("SELECT * FROM TabEmployeeAttendance WHERE sync=0 LIMIT 30")
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
     for row in rows:
@@ -58,7 +56,7 @@ def process_check_in():
             employee_name, employee_number = frappe.db.get_value(
                 "Employee",
                 {"attandance_device_id": row_dict["EmployeeID"]},
-                ["employee_name", "employee_number"],
+                ["employee_name", "employee_number",],
             )
             date = row_dict.get("AuthenticationDate")
             test_check_in = frappe.db.exists(
@@ -122,11 +120,9 @@ def process_check_in():
 
         conn.commit()
 
-@frappe.whitelist()
-def delete_synced_records():
-    frappe.enqueue(process_delete_synced_records, queue='long')
 
-def process_delete_synced_records():
+
+def delete_synced_records():
     settings = frappe.get_doc("Excel Attendance Settings")
     server = settings.server
     database = settings.database
@@ -140,11 +136,9 @@ def process_delete_synced_records():
 
 import datetime
 
-@frappe.whitelist()
-def delete_oldest_non_sync_records():
-    frappe.enqueue(process_delete_oldest_non_sync_records, queue='long')
 
-def process_delete_oldest_non_sync_records():
+
+def delete_oldest_non_sync_records():
     settings = frappe.get_doc("Excel Attendance Settings")
     server = settings.server
     database = settings.database
@@ -166,11 +160,9 @@ def process_delete_oldest_non_sync_records():
     cursor.execute(delete_query, (two_months_ago,))
     conn.commit()
 
-@frappe.whitelist()
-def attendance_sync():
-    frappe.enqueue(process_attendance_sync)
 
-def process_attendance_sync():
+
+def attendance_sync():
     settings = frappe.get_doc("Excel Attendance Settings")
     shift_lists = frappe.db.get_list("Shift Type")
     current_datetime = get_datetime()
@@ -190,11 +182,9 @@ def process_attendance_sync():
             "Shift Type", shift.name, "last_sync_of_checkin", target_datetime
         )
 
-@frappe.whitelist()
-def delete_employee_checkin():
-    frappe.enqueue(process_delete_employee_checkin, queue='long')
 
-def process_delete_employee_checkin():
+
+def delete_employee_checkin():
     try:
         results = frappe.db.sql(
             """
@@ -213,11 +203,9 @@ def process_delete_employee_checkin():
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 @frappe.whitelist()
 def set_device_id():
-    frappe.enqueue(process_set_device_id, queue='long')
-
-def process_set_device_id():
     employees = frappe.db.get_list(
         "Employee", filters={"status": "Active"}, fields=["name"]
     )
