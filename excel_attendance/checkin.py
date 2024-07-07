@@ -190,7 +190,7 @@ def delete_employee_checkin():
             """
             SELECT e.attendance, e.date, e.name
             FROM `tabEmployee Checkin` AS e
-            WHERE e.date < DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY) AND e.attendance IS NOT NULL
+            WHERE e.date < DATE_SUB(CURRENT_DATE(), INTERVAL 4 DAY)
             """,
             as_dict=True)
         
