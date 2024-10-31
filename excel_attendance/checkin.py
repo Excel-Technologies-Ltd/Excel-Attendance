@@ -186,22 +186,18 @@ def attendance_sync():
 
 def delete_employee_checkin():
     try:
-        results = frappe.db.sql(
+        # Execute the delete query
+        frappe.db.sql(
             """
-            SELECT e.attendance, e.date, e.name
-            FROM `tabEmployee Checkin` AS e
-            WHERE e.date < DATE_SUB(CURRENT_DATE(), INTERVAL 4 DAY)
-            """,
-            as_dict=True)
-        
-        for data in results:
-            try:
-                frappe.delete_doc('Employee Checkin', data.name)
-                print(f"Deleted document: {data.name}")
-            except Exception as e:
-                print(f"An error occurred while deleting {data.name}: {e}")
+            DELETE FROM `tabEmployee Checkin`
+            WHERE date < DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+            """
+        )
+        frappe.db.commit()  # Commit the changes to the database
+        print("Old Employee Checkin records deleted successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 
 @frappe.whitelist()
