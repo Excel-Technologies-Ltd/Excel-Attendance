@@ -190,7 +190,7 @@ def delete_employee_checkin():
         frappe.db.sql(
             """
             DELETE FROM `tabEmployee Checkin`
-            WHERE date < DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+            WHERE date < DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)
             """
         )
         frappe.db.commit()  # Commit the changes to the database
