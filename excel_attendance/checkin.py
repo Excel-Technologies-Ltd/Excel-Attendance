@@ -26,7 +26,7 @@ def set_check_in():
     password = settings.password
     conn = pymssql.connect(server, username, password, database)
     cursor = conn.cursor()
-    cursor.execute("SELECT TOP 30 * FROM TabEmployeeAttendance WHERE sync=0 ORDER BY AuthenticationDateAndTime ASC")
+    cursor.execute("SELECT TOP 50 * FROM TabEmployeeAttendance WHERE sync=0 ORDER BY AuthenticationDateAndTime ASC")
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
     for row in rows:
