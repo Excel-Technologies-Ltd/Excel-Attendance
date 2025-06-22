@@ -210,9 +210,13 @@ def set_device_id():
         id = extract_number_from_id(employee.name)
         frappe.db.set_value("Employee", employee.name, "attandance_device_id", id)
 
+import re
+
 def extract_number_from_id(identifier):
     if identifier.startswith("ETL") or identifier.startswith("EISL"):
-        number = "".join(filter(str.isdigit, identifier))
-        return number
-    else:
-        return identifier
+        match = re.match(r"^(ETL|EISL)(\d+)(.*)", identifier)
+        if match:
+            number = match.group(2)
+            suffix = match.group(3).strip()
+            return f"{number} {suffix}".strip()
+    return identifier
