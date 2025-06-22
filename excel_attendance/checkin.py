@@ -25,17 +25,42 @@ def set_check_in():
     username = settings.username
     password = settings.password
     conn = pymssql.connect(server, username, password, database)
+    query = """
+        WITH RankedAttendance AS (
+            SELECT 
+                *, 
+                ROW_NUMBER() OVER (
+                    PARTITION BY EmployeeID, AuthenticationDateAndTime 
+                    ORDER BY AuthenticationDateAndTime ASC
+                ) AS rn
+            FROM TabEmployeeAttendance 
+            WHERE sync = 0
+        )
+        SELECT TOP 10
+            EmployeeID,
+            PersonName,
+            AuthenticationDate,
+            AuthenticationTime,
+            AuthenticationDateAndTime,
+            DeviceName,
+            sync
+        FROM RankedAttendance
+        WHERE rn = 1
+        ORDER BY AuthenticationDateAndTime ASC
+    """
     cursor = conn.cursor()
-    cursor.execute("SELECT TOP 50 * FROM TabEmployeeAttendance WHERE sync=0 ORDER BY AuthenticationDateAndTime ASC")
+    cursor.execute(query)
     columns = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
+    print (rows)
     for row in rows:
         row_dict = dict(zip(columns, row))
-        test = frappe.db.exists(
-            "Employee", {"attandance_device_id": row_dict["EmployeeID"]}
-        )
-        if not test:
-            try:
+        sync_updated = False
+
+        try:
+            test = frappe.db.exists("Employee", {"attandance_device_id": row_dict["EmployeeID"]})
+            
+            if not test:
                 frappe.get_doc({
                     "doctype": "Employee Checkin Log",
                     "device_id": row_dict.get("EmployeeID"),
@@ -45,80 +70,56 @@ def set_check_in():
                     "date": row_dict.get("AuthenticationDate"),
                     "time": row_dict.get("AuthenticationTime")
                 }).insert()
-            except Exception as ex:
-                print("Error inserting Employee Checkin Log document:", )
-                cursor.execute(
-                            "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
-                )
-
-        else:
-            employee_name, employee_number = frappe.db.get_value(
-                "Employee",
-                {"attandance_device_id": row_dict["EmployeeID"]},
-                ["employee_name", "employee_number",],
-            )
-            date = row_dict.get("AuthenticationDate")
-            test_check_in = frappe.db.exists(
-                "Employee Checkin", {"date": date, "employee": employee_number}
-            )
-            print(test_check_in)
-            if test_check_in:
-                log_type = "OUT"
             else:
-                log_type = "IN"
-            try:
-                doc = frappe.get_doc(
-                    {
-                        "doctype": "Employee Checkin",
-                        "employee": employee_number,
-                        "employee_name": employee_name,
-                        "log_type": log_type,
-                        "skip_auto_attendance":0,
-                        "time": f"{date} {row_dict.get('AuthenticationTime')}",
-                        "date": row_dict.get("AuthenticationDate"),
-                        "device_id": row_dict.get("DeviceName"),
-                    }
-                ).insert()
-                if doc:
-                    try:
-                        cursor.execute(
-                            "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
-                            (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
-                        )
-                        frappe.db.commit()
-                        conn.commit()
-                    except Exception as update_error:
-                        frappe.db.rollback()
-                        conn.rollback()
-                        print("Error updating TabEmployeeAttendance:", update_error)
-                        try:
-                            frappe.get_doc({
-                                "doctype": "Employee Checkin Log",
-                                "device_id": row_dict.get("EmployeeID"),
-                                "person_name": row_dict.get("PersonName"),
-                                "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
-                                "log": f"Rollback",
-                                "date":row_dict.get("AuthenticationDate"),
-                                "time":row_dict.get("AuthenticationTime")
-                            }).insert()
-                        except Exception as ex:
-                            print("Error inserting Employee Checkin Log document:", ex)
-            except Exception as e:
-                try:
-                    frappe.get_doc({
-                        "doctype": "Employee Checkin Log",
-                        "device_id": row_dict.get("EmployeeID"),
-                        "person_name": row_dict.get("PersonName"),
-                        "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
-                        "log": f"Error inserting Employee Checkin document: {frappe.as_json(e)}",
-                        "date":row_dict.get("AuthenticationDate"),
-                        "time":row_dict.get("AuthenticationTime")
-                    }).insert()
-                except Exception as ex:
-                    print("Error inserting Employee Checkin Log document:", ex)
+                employee_name, employee_number = frappe.db.get_value(
+                    "Employee",
+                    {"attandance_device_id": row_dict["EmployeeID"]},
+                    ["employee_name", "employee_number"],
+                )
+                date = row_dict.get("AuthenticationDate")
+                test_check_in = frappe.db.exists(
+                    "Employee Checkin", {"date": date, "employee": employee_number}
+                )
+                log_type = "OUT" if test_check_in else "IN"
+                frappe.get_doc({
+                    "doctype": "Employee Checkin",
+                    "employee": employee_number,
+                    "employee_name": employee_name,
+                    "log_type": log_type,
+                    "skip_auto_attendance": 0,
+                    "time": f"{date} {row_dict.get('AuthenticationTime')}",
+                    "date": row_dict.get("AuthenticationDate"),
+                    "device_id": row_dict.get("DeviceName"),
+                }).insert()
+                print("insert")
 
-        conn.commit()
+        except Exception as e:
+            print(e)
+            try:
+                frappe.get_doc({
+                    "doctype": "Employee Checkin Log",
+                    "device_id": row_dict.get("EmployeeID"),
+                    "person_name": row_dict.get("PersonName"),
+                    "authentication_time": f"{row_dict.get('AuthenticationDate')} {row_dict.get('AuthenticationTime')}",
+                    "log": f"Exception: {frappe.as_json(e)}",
+                    "date": row_dict.get("AuthenticationDate"),
+                    "time": row_dict.get("AuthenticationTime")
+                }).insert()
+            except Exception as log_ex:
+                print("Failed to insert Checkin Log:", log_ex)
+        finally:
+            try:
+                cursor.execute(
+                    "UPDATE TabEmployeeAttendance SET sync = 1 WHERE EmployeeID = %s AND AuthenticationDateAndTime = %s",
+                    (row_dict["EmployeeID"], row_dict["AuthenticationDateAndTime"]),
+                )
+                frappe.db.commit()
+                conn.commit()
+            except Exception as update_error:
+                frappe.db.rollback()
+                conn.rollback()
+                print("Error updating sync in TabEmployeeAttendance:", update_error)
+
 
 
 
