@@ -132,13 +132,12 @@ override_doctype_class = {"Shift Type": "excel_attendance.override.CustomShiftTy
 
 scheduler_events = {
     "all": ["excel_attendance.checkin.set_check_in"],
-    "daily": ["excel_attendance.checkin.delete_synced_records"],
     "monthly": ["excel_attendance.checkin.delete_oldest_non_sync_records"],
     "cron": {
         "0 23 * * *": ["excel_attendance.checkin.attendance_sync"],
-        "0 6 * * *": ["excel_attendance.checkin.delete_employee_checkin"]
+        "0 6 * * *": ["excel_attendance.checkin.delete_employee_checkin"],
+        "0 0 */2 * *": ["excel_attendance.checkin.delete_synced_records"]
         },
-   
 }
 
 # Testing
