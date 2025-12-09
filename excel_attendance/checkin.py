@@ -49,7 +49,7 @@ def set_check_in():
                 FROM TabEmployeeAttendance
                 WHERE sync = 0
             )
-            SELECT TOP 200
+            SELECT TOP 100
                 EmployeeID,
                 PersonName,
                 AuthenticationDate,
