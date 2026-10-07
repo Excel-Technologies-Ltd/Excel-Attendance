@@ -165,6 +165,7 @@ def delete_oldest_non_sync_records():
 
 def attendance_sync():
     settings = frappe.get_doc("Excel Attendance Settings")
+    shift_lists = frappe.db.get_list("Shift Type")
     current_datetime = get_datetime()
     current_date = current_datetime.strftime("%Y-%m-%d")
     target_time = (
@@ -177,24 +178,9 @@ def attendance_sync():
         target_datetime_str, "%Y-%m-%d %H:%M:%S"
     )
 
-    shift_lists = frappe.get_all(
-        "Shift Type", fields=["name", "end_time", "allow_check_out_after_shift_end_time"]
-    )
     for shift in shift_lists:
-        # HRMS only processes checkins with shift_actual_end < last_sync_of_checkin (strict),
-        # so a shift whose actual end equals target_datetime would be skipped entirely.
-        last_sync = target_datetime
-        actual_end = (
-            datetime.datetime.combine(current_datetime.date(), datetime.time.min)
-            + shift.end_time
-            + datetime.timedelta(minutes=shift.allow_check_out_after_shift_end_time or 0)
-        )
-        if target_datetime <= actual_end <= current_datetime:
-            last_sync = actual_end
-        last_sync += datetime.timedelta(seconds=1)
-
         frappe.db.set_value(
-            "Shift Type", shift.name, "last_sync_of_checkin", last_sync
+            "Shift Type", shift.name, "last_sync_of_checkin", target_datetime
         )
 
 
