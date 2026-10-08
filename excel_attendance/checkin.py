@@ -182,6 +182,14 @@ def attendance_sync():
         frappe.db.set_value(
             "Shift Type", shift.name, "last_sync_of_checkin", target_datetime
         )
+    frappe.db.commit()
+
+    # Mark attendance now, once per day at the scheduled time.
+    # (The hourly HRMS job `process_auto_attendance_for_all_shifts` must be
+    # stopped in Scheduled Job Type, otherwise it will mark attendance hourly.)
+    from excel_attendance.override import process_auto_attendance_for_all_shifts
+
+    process_auto_attendance_for_all_shifts()
 
 
 

@@ -75,6 +75,12 @@ doctype_list_js = {"Employee": "public/js/employee_list.js"}
 # before_uninstall = "excel_attendance.uninstall.before_uninstall"
 # after_uninstall = "excel_attendance.uninstall.after_uninstall"
 
+# Migration
+# ---------
+# Keep the hourly HRMS auto-attendance job stopped so attendance is only marked
+# once per day by the 23:59 `attendance_sync` cron (see excel_attendance/setup.py).
+after_migrate = ["excel_attendance.setup.stop_hourly_auto_attendance"]
+
 # Integration Setup
 # ------------------
 # To set up dependencies/integrations with other apps
